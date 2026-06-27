@@ -1,4 +1,5 @@
 # VideoStream
+> Infrastructure: [videostream-infra](https://github.com/Mohammed-Hassan-123/videostream-infra)
 
 A self-hosted video streaming platform built with Node.js. Users can browse and stream videos through a clean web interface; admins can upload, rename, delete videos, and manage thumbnails through a built-in panel.
 
