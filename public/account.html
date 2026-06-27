@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Account — VideoStream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #0a0a0a; --dark: #141414; --card: #1a1a1a;
+      --border: #2a2a2a; --red: #E50914; --red-dark: #b0060f;
+      --white: #ffffff; --gray: #b3b3b3; --green: #2ed573;
+    }
+    body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--red); letter-spacing: 3px; text-decoration: none; }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: var(--gray); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav a:hover { color: var(--white); }
+    .btn-sm {
+      background: transparent; border: 1px solid var(--border); color: var(--gray);
+      padding: 0.35rem 0.9rem; border-radius: 4px; font-size: 0.82rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    }
+    .btn-sm:hover { border-color: var(--white); color: var(--white); }
+
+    .page { padding: 2.5rem 3rem; max-width: 700px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; margin-bottom: 2rem; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem;
+    }
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 1px; color: var(--gray);
+      background: #111;
+    }
+    .card-body { padding: 1.5rem; }
+
+    /* Profile table */
+    .profile-table { width: 100%; border-collapse: collapse; }
+    .profile-table tr { border-bottom: 1px solid var(--border); }
+    .profile-table tr:last-child { border-bottom: none; }
+    .profile-table td { padding: 0.85rem 0; font-size: 0.9rem; }
+    .profile-table td:first-child { color: var(--gray); width: 140px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.7rem; border-radius: 3px;
+      font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .badge-admin  { background: rgba(229,9,20,0.15); color: var(--red); border: 1px solid rgba(229,9,20,0.3); }
+    .badge-client { background: rgba(255,255,255,0.07); color: var(--gray); border: 1px solid var(--border); }
+
+    /* Password reset */
+    .form-group { margin-bottom: 1.1rem; }
+    label { display: block; font-size: 0.8rem; color: var(--gray); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    input[type=password] {
+      width: 100%; background: #111; border: 1px solid var(--border);
+      border-radius: 5px; padding: 0.7rem 1rem;
+      color: var(--white); font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s; outline: none;
+    }
+    input:focus { border-color: rgba(229,9,20,0.5); }
+
+    .btn-save {
+      background: var(--red); color: var(--white); border: none;
+      padding: 0.7rem 1.8rem; border-radius: 4px; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s; margin-top: 0.5rem;
+    }
+    .btn-save:hover { background: var(--red-dark); }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .alert {
+      padding: 0.7rem 1rem; border-radius: 5px; font-size: 0.88rem;
+      margin-bottom: 1rem; display: none;
+    }
+    .alert-success { background: rgba(46,213,115,0.12); border: 1px solid rgba(46,213,115,0.3); color: var(--green); }
+    .alert-error   { background: rgba(229,9,20,0.12);  border: 1px solid rgba(229,9,20,0.3);  color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">VideoStream</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/videos">Library</a>
+      <a href="/about">About</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button class="btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <h1 class="page-title">Account Settings</h1>
+
+    <!-- Profile -->
+    <div class="card">
+      <div class="card-header">Profile</div>
+      <div class="card-body">
+        <table class="profile-table">
+          <tr>
+            <td>Username</td>
+            <td id="profile-username">—</td>
+          </tr>
+          <tr>
+            <td>Role</td>
+            <td id="profile-role">—</td>
+          </tr>
+          <tr>
+            <td>Member Since</td>
+            <td id="profile-joined">—</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Password Reset -->
+    <div class="card">
+      <div class="card-header">Reset Password</div>
+      <div class="card-body">
+        <div class="alert alert-success" id="pw-success"></div>
+        <div class="alert alert-error"   id="pw-error"></div>
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="current-pw" placeholder="Enter current password"/>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="new-pw" placeholder="Enter new password (min 6 chars)"/>
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="confirm-pw" placeholder="Confirm new password"/>
+        </div>
+        <button class="btn-save" onclick="resetPassword()">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/me').then(r => r.json()).then(user => {
+      if (!user) { window.location.href = '/login'; return; }
+      document.getElementById('profile-username').textContent = user.username;
+      document.getElementById('profile-role').innerHTML =
+        `<span class="badge badge-${user.role}">${user.role}</span>`;
+      document.getElementById('profile-joined').textContent = user.joinedDate || '—';
+    });
+
+    async function resetPassword() {
+      const current = document.getElementById('current-pw').value;
+      const newPw   = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+
+      if (!current || !newPw || !confirm) return show('pw-error', 'All fields are required');
+      if (newPw !== confirm) return show('pw-error', 'New passwords do not match');
+      if (newPw.length < 6) return show('pw-error', 'Password must be at least 6 characters');
+
+      const btn = document.querySelector('.btn-save');
+      btn.disabled = true; btn.textContent = 'Saving...';
+
+      const res = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPw })
+      });
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Update Password';
+
+      if (res.ok) {
+        show('pw-success', 'Password updated successfully');
+        document.getElementById('current-pw').value = '';
+        document.getElementById('new-pw').value = '';
+        document.getElementById('confirm-pw').value = '';
+      } else {
+        show('pw-error', data.error);
+      }
+    }
+
+    function show(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg; el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function logout() {
+      fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/');
+    }
+  </script>
+</body>
+</html>

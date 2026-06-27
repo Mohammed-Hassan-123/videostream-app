@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Library — VideoStream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #0a0a0a; --dark: #141414; --card: #1a1a1a;
+      --border: #2a2a2a; --red: #E50914; --red-dark: #b0060f;
+      --white: #ffffff; --gray: #b3b3b3;
+    }
+    body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--red); letter-spacing: 3px; text-decoration: none; }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: var(--gray); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: var(--white); }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .user-name { color: var(--gray); font-size: 0.85rem; }
+    .user-name span { color: var(--white); font-weight: 600; }
+    .btn-sm {
+      background: transparent; border: 1px solid var(--border); color: var(--gray);
+      padding: 0.35rem 0.9rem; border-radius: 4px; font-size: 0.82rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-sm:hover { border-color: var(--white); color: var(--white); }
+
+    /* Admin banner */
+    .admin-bar {
+      display: none;
+      background: rgba(229,9,20,0.08);
+      border-bottom: 1px solid rgba(229,9,20,0.2);
+      padding: 0.75rem 3rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-bar.visible { display: flex; }
+    .admin-bar-text { font-size: 0.85rem; color: var(--gray); }
+    .admin-bar-text span { color: var(--red); font-weight: 600; }
+    .btn-inventory {
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      padding: 0.5rem 1.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-inventory:hover { background: var(--red-dark); }
+
+    /* Page content */
+    .page { padding: 2.5rem 3rem; }
+    .page-header {
+      display: flex; align-items: baseline; gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; }
+    .video-count { color: var(--gray); font-size: 0.9rem; }
+
+    /* Video grid */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .video-card {
+      background: var(--card); border-radius: 6px; overflow: hidden;
+      border: 1px solid var(--border); transition: all 0.3s;
+      cursor: pointer; text-decoration: none; color: inherit; display: block;
+    }
+    .video-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--red);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 1px rgba(229,9,20,0.2);
+    }
+    .card-thumb {
+      position: relative; aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #1f1f1f, #2a1010); overflow: hidden;
+    }
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .card-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; color: rgba(229,9,20,0.25);
+    }
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .video-card:hover .card-overlay { opacity: 1; }
+    .play-btn {
+      width: 48px; height: 48px; background: rgba(229,9,20,0.9);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .play-btn svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+    .card-info { padding: 0.9rem; }
+    .card-title { font-weight: 600; font-size: 0.93rem; margin-bottom: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { font-size: 0.77rem; color: var(--gray); display: flex; gap: 0.75rem; }
+
+    .empty {
+      text-align: center; padding: 5rem; color: var(--gray);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="logo">VideoStream</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/videos" class="active">Library</a>
+      <a href="/about">About</a>
+    </nav>
+    <div class="header-right">
+      <span class="user-name">Hi, <span id="header-username"></span></span>
+      <a href="/account" class="btn-sm">Account</a>
+      <button class="btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Admin bar — only visible for admin -->
+  <div class="admin-bar" id="admin-bar">
+    <span class="admin-bar-text">Logged in as <span>Admin</span> — manage video inventory below</span>
+    <a href="/videos/admin" class="btn-inventory">⚙ Sort Inventory</a>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <h1 class="page-title">Video Library</h1>
+      <span class="video-count" id="video-count"></span>
+    </div>
+    <div id="video-grid" class="video-grid"></div>
+    <div id="empty" class="empty" style="display:none">
+      <div class="empty-icon">📭</div>
+      <p>No videos in the library yet.</p>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    fetch('/api/me').then(r => r.json()).then(user => {
+      if (!user) { window.location.href = '/login'; return; }
+      currentUser = user;
+      document.getElementById('header-username').textContent = user.username;
+      if (user.role === 'admin') {
+        document.getElementById('admin-bar').classList.add('visible');
+      }
+      loadVideos();
+    });
+
+    function loadVideos() {
+      fetch('/api/videos').then(r => r.json()).then(videos => {
+        document.getElementById('video-count').textContent = `${videos.length} video${videos.length !== 1 ? 's' : ''}`;
+        if (videos.length === 0) { document.getElementById('empty').style.display = 'block'; return; }
+        document.getElementById('video-grid').innerHTML = videos.map(v => `
+          <a class="video-card" href="/play?v=${encodeURIComponent(v.filename)}">
+            <div class="card-thumb">
+              ${v.thumbnail_key ? `<img src="/thumbnails/${v.thumbnail_key}" alt="${v.display_name}">` : `<div class="card-placeholder">▶</div>`}
+              <div class="card-overlay">
+                <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+              </div>
+            </div>
+            <div class="card-info">
+              <div class="card-title">${v.display_name}</div>
+              <div class="card-meta"><span>${v.size}</span><span>${v.added_date}</span></div>
+            </div>
+          </a>
+        `).join('');
+      });
+    }
+
+    function logout() {
+      fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/');
+    }
+  </script>
+</body>
+</html>

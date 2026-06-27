@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — VideoStream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #0a0a0a; --dark: #141414; --card: #1a1a1a;
+      --border: #2a2a2a; --red: #E50914; --white: #ffffff; --gray: #b3b3b3;
+    }
+    body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--red); letter-spacing: 3px; text-decoration: none; }
+    nav { display: flex; gap: 2rem; }
+    nav a { color: var(--gray); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: var(--white); }
+    .btn-sm {
+      background: transparent; border: 1px solid var(--border); color: var(--gray);
+      padding: 0.35rem 0.9rem; border-radius: 4px; font-size: 0.82rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; text-decoration: none;
+    }
+    .btn-sm:hover { border-color: var(--white); color: var(--white); }
+
+    .page { padding: 3rem; max-width: 860px; }
+
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 3px; margin-bottom: 0.5rem; }
+    .page-subtitle { color: var(--gray); font-size: 1rem; line-height: 1.6; margin-bottom: 3rem; }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 3rem;
+    }
+    .stack-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.5rem; transition: border-color 0.2s;
+    }
+    .stack-item:hover { border-color: rgba(229,9,20,0.4); }
+    .stack-icon { font-size: 1.8rem; margin-bottom: 0.7rem; }
+    .stack-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .stack-desc { color: var(--gray); font-size: 0.82rem; line-height: 1.5; }
+
+    .phases {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; margin-bottom: 3rem;
+    }
+    .phases-header {
+      background: #111; padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 1px; color: var(--gray);
+    }
+    .phase-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .phase-row:last-child { border-bottom: none; }
+    .phase-num {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+      color: var(--red); width: 28px; flex-shrink: 0;
+    }
+    .phase-name { font-weight: 600; width: 200px; flex-shrink: 0; }
+    .phase-desc { color: var(--gray); font-size: 0.85rem; }
+    .phase-status {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+    }
+    .status-done    { background: rgba(46,213,115,0.12); color: #2ed573; border: 1px solid rgba(46,213,115,0.3); }
+    .status-current { background: rgba(229,9,20,0.12);  color: var(--red);  border: 1px solid rgba(229,9,20,0.3); }
+    .status-next    { background: rgba(255,255,255,0.05); color: var(--gray); border: 1px solid var(--border); }
+
+    .author-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 2rem;
+      display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap;
+    }
+    .author-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), #8a0007);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; flex-shrink: 0;
+    }
+    .author-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 0.3rem; }
+    .author-title { color: var(--red); font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 500; }
+    .author-bio { color: var(--gray); font-size: 0.88rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">VideoStream</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/videos">Library</a>
+      <a href="/about" class="active">About</a>
+    </nav>
+    <div id="header-right">
+      <a href="/login" class="btn-sm" id="btn-signin">Sign In</a>
+    </div>
+  </header>
+
+  <div class="page">
+    <h1 class="page-title">About VideoStream</h1>
+    <p class="page-subtitle">
+      A self-hosted video streaming platform built as a hands-on DevOps learning project.
+      Every component — Node.js, Nginx, Docker, and eventually Kubernetes — is deployed and
+      configured manually to build real production skills.
+    </p>
+
+    <!-- Stack -->
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;margin-bottom:1rem">Tech Stack</h2>
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="stack-icon">🟢</div>
+        <div class="stack-name">Node.js + Express</div>
+        <div class="stack-desc">Backend server. HTTP range streaming, session auth, file management.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon">⚡</div>
+        <div class="stack-name">Nginx</div>
+        <div class="stack-desc">Reverse proxy. Rate limiting, caching, security headers, location routing.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon">🐳</div>
+        <div class="stack-name">Docker</div>
+        <div class="stack-desc">Containerized deployment. Coming in Phase 4.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon">☸️</div>
+        <div class="stack-name">Kubernetes</div>
+        <div class="stack-desc">Orchestration, autoscaling, load balancing. Coming in Phase 6.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon">🔧</div>
+        <div class="stack-name">dnsmasq</div>
+        <div class="stack-desc">Local DNS. Resolves videostream.local across the home network.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon">🖥</div>
+        <div class="stack-name">Proxmox VE</div>
+        <div class="stack-desc">Homelab hypervisor. Ubuntu 22.04 VMs for staging and testing.</div>
+      </div>
+    </div>
+
+    <!-- Phases -->
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;margin-bottom:1rem">Build Phases</h2>
+    <div class="phases">
+      <div class="phases-header">Project Roadmap</div>
+      <div class="phase-row">
+        <span class="phase-num">1</span>
+        <span class="phase-name">Bare Metal Node.js</span>
+        <span class="phase-desc">Express server, video streaming, range requests</span>
+        <span class="phase-status status-done">Done</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-num">2</span>
+        <span class="phase-name">Nginx Reverse Proxy</span>
+        <span class="phase-desc">Local proxy, dnsmasq, videostream.local DNS</span>
+        <span class="phase-status status-done">Done</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-num">3</span>
+        <span class="phase-name">Nginx Deep Dive</span>
+        <span class="phase-desc">Rate limiting, caching, security headers, error pages</span>
+        <span class="phase-status status-current">Current</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-num">4</span>
+        <span class="phase-name">Dockerize</span>
+        <span class="phase-desc">Dockerfile, docker-compose, container networking</span>
+        <span class="phase-status status-next">Next</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-num">5</span>
+        <span class="phase-name">Nginx + Docker</span>
+        <span class="phase-desc">Nginx proxying to containers, volume mounts</span>
+        <span class="phase-status status-next">Planned</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-num">6</span>
+        <span class="phase-name">Kubernetes</span>
+        <span class="phase-desc">Deployments, services, ingress, autoscaling</span>
+        <span class="phase-status status-next">Planned</span>
+      </div>
+    </div>
+
+    <!-- Author -->
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;margin-bottom:1rem">Built By</h2>
+    <div class="author-card">
+      <div class="author-avatar">MH</div>
+      <div>
+        <div class="author-name">Mohammed Hassan</div>
+        <div class="author-title">Junior DevOps Engineer — Rokomari.com, Dhaka</div>
+        <div class="author-bio">
+          Building this platform to practice Nginx, Docker, and Kubernetes hands-on.
+          Daily stack: Linux, Docker, GitLab CI/CD, Proxmox, Nginx, HAProxy, MySQL, MongoDB, Grafana, Huawei Cloud.
+          Goal: Freelance DevOps on Fiverr by Q3 2026.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/me').then(r => r.json()).then(user => {
+      if (user) {
+        document.getElementById('header-right').innerHTML = `
+          <div style="display:flex;align-items:center;gap:1rem">
+            <span style="color:var(--gray);font-size:0.85rem">${user.username}</span>
+            <a href="/account" class="btn-sm">Account</a>
+          </div>`;
+      }
+    });
+  </script>
+</body>
+</html>

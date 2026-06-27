@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Inventory — VideoStream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #0a0a0a; --dark: #141414; --card: #1a1a1a;
+      --border: #2a2a2a; --red: #E50914; --red-dark: #b0060f;
+      --white: #ffffff; --gray: #b3b3b3; --green: #2ed573;
+    }
+    body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--red); letter-spacing: 3px; text-decoration: none; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .btn-sm {
+      background: transparent; border: 1px solid var(--border); color: var(--gray);
+      padding: 0.35rem 0.9rem; border-radius: 4px; font-size: 0.82rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; text-decoration: none;
+    }
+    .btn-sm:hover { border-color: var(--white); color: var(--white); }
+    .btn-back {
+      background: transparent; border: 1px solid var(--border); color: var(--gray);
+      padding: 0.4rem 1rem; border-radius: 4px; font-size: 0.85rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-back:hover { border-color: var(--white); color: var(--white); }
+
+    .page { padding: 2.5rem 3rem; }
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; }
+    .page-subtitle { color: var(--gray); font-size: 0.88rem; margin-top: 0.2rem; }
+
+    /* Alert */
+    .alert {
+      padding: 0.75rem 1rem; border-radius: 5px; font-size: 0.88rem;
+      margin-bottom: 1.5rem; display: none;
+    }
+    .alert-success { background: rgba(46,213,115,0.12); border: 1px solid rgba(46,213,115,0.3); color: var(--green); display: block; }
+    .alert-error   { background: rgba(229,9,20,0.12);  border: 1px solid rgba(229,9,20,0.3);  color: #ff6b6b; display: block; }
+
+    /* Inventory table */
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #111; border-bottom: 1px solid var(--border); }
+    th {
+      padding: 1rem 1.2rem; text-align: left;
+      font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--gray); font-weight: 600;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    td { padding: 1rem 1.2rem; font-size: 0.9rem; vertical-align: middle; }
+
+    .thumb-preview {
+      width: 64px; height: 40px; object-fit: cover; border-radius: 3px;
+      background: #111; border: 1px solid var(--border);
+    }
+    .thumb-placeholder {
+      width: 64px; height: 40px; background: #111;
+      border: 1px solid var(--border); border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(229,9,20,0.3); font-size: 1.2rem;
+    }
+
+    .input-name {
+      background: #111; border: 1px solid var(--border);
+      color: var(--white); padding: 0.4rem 0.7rem;
+      border-radius: 4px; font-size: 0.88rem;
+      font-family: 'DM Sans', sans-serif; width: 180px;
+      transition: border-color 0.2s; outline: none;
+    }
+    .input-name:focus { border-color: rgba(229,9,20,0.5); }
+
+    .filename-chip {
+      background: rgba(255,255,255,0.05);
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      font-size: 0.78rem; color: var(--gray);
+      font-family: monospace;
+    }
+
+    .btn-action {
+      background: var(--red); color: var(--white); border: none;
+      padding: 0.4rem 0.9rem; border-radius: 4px; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s; margin-right: 0.4rem;
+    }
+    .btn-action:hover { background: var(--red-dark); }
+    .btn-action.saved {
+      background: rgba(46,213,115,0.2); color: var(--green);
+      border: 1px solid rgba(46,213,115,0.3);
+    }
+
+    .upload-thumb-label {
+      background: transparent; color: var(--gray);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.7rem; border-radius: 4px; font-size: 0.8rem;
+      cursor: pointer; transition: all 0.2s; display: inline-block;
+    }
+    .upload-thumb-label:hover { border-color: var(--white); color: var(--white); }
+    input[type=file] { display: none; }
+
+    /* Upload section */
+    .upload-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+    }
+    .upload-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .upload-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+
+    .upload-drop {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .upload-drop:hover, .upload-drop.dragover {
+      border-color: rgba(229,9,20,0.5);
+      background: rgba(229,9,20,0.04);
+    }
+    .upload-drop-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .upload-drop-text { color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem; }
+    .upload-drop-text strong { color: var(--white); }
+    .btn-choose {
+      background: var(--red); color: var(--white); border: none;
+      padding: 0.6rem 1.5rem; border-radius: 4px; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-choose:hover { background: var(--red-dark); }
+
+    .upload-progress {
+      display: none; margin-top: 1.5rem;
+    }
+    .progress-info { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--gray); }
+    .progress-bar-wrap { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--red); border-radius: 4px; width: 0%; transition: width 0.3s; }
+
+    .upload-success { display: none; margin-top: 1.5rem; }
+    .upload-actions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--red); color: var(--white); border: none;
+      padding: 0.6rem 1.5rem; border-radius: 4px; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s; text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-outline {
+      background: transparent; color: var(--gray); border: 1px solid var(--border);
+      padding: 0.6rem 1.5rem; border-radius: 4px; font-size: 0.9rem;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s; text-decoration: none; display: inline-block;
+    }
+    .btn-outline:hover { border-color: var(--white); color: var(--white); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="logo">VideoStream</a>
+    <div class="header-right">
+      <span id="header-username" style="color:var(--gray);font-size:0.85rem"></span>
+      <a href="/videos" class="btn-sm">← Inventory</a>
+      <button class="btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">⚙ Admin Inventory</h1>
+        <p class="page-subtitle">Manage video names, thumbnails, and uploads</p>
+      </div>
+      <a href="/videos" class="btn-back">← Back to Library</a>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <!-- VIDEO TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Thumbnail</th>
+            <th>Filename</th>
+            <th>Display Name</th>
+            <th>Size</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="video-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- UPLOAD SECTION -->
+    <div class="upload-section">
+      <div class="upload-title">Upload New Video</div>
+
+      <div class="upload-drop" id="drop-zone" onclick="document.getElementById('video-file-input').click()">
+        <div class="upload-drop-icon">🎬</div>
+        <p class="upload-drop-text"><strong>Click to choose</strong> or drag & drop an MP4 file here</p>
+        <button class="btn-choose" type="button">Choose File</button>
+        <input type="file" id="video-file-input" accept=".mp4,video/mp4" onchange="handleFileSelect(this.files[0])"/>
+      </div>
+
+      <div class="upload-progress" id="upload-progress">
+        <div class="progress-info">
+          <span id="upload-filename">Uploading...</span>
+          <span id="upload-pct">0%</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="upload-success" id="upload-success">
+        <div style="color:var(--green);font-weight:600;margin-bottom:0.5rem">✓ Upload complete!</div>
+        <p style="color:var(--gray);font-size:0.88rem">Video has been added to the library.</p>
+        <div class="upload-actions">
+          <button class="btn-outline" onclick="resetUpload()">Upload Another</button>
+          <a href="/videos" class="btn-primary">Go to Inventory</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/me').then(r => r.json()).then(user => {
+      if (!user || user.role !== 'admin') { window.location.href = '/'; return; }
+      document.getElementById('header-username').textContent = `Admin: ${user.username}`;
+      loadVideos();
+    });
+
+    // bustCache=true sends Cache-Control: no-cache → Nginx bypasses VS_CACHE
+    function loadVideos(bustCache = false) {
+      const opts = bustCache ? { headers: { 'Cache-Control': 'no-cache' } } : {};
+      fetch('/api/videos', opts).then(r => r.json()).then(videos => {
+        const tbody = document.getElementById('video-tbody');
+        if (videos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem">No videos yet. Upload one below.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = videos.map(v => `
+          <tr id="row-${v.id}">
+            <td>
+              <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-start">
+                <label class="upload-thumb-label" title="Upload thumbnail" id="thumb-label-${v.id}">
+                  ${v.thumbnail_key
+                    ? `<img class="thumb-preview" id="thumb-img-${v.id}" src="/thumbnails/${v.thumbnail_key}" alt="">`
+                    : `<div class="thumb-placeholder" id="thumb-img-${v.id}">🖼</div>`}
+                  <input type="file" accept="image/*" onchange="uploadThumb(${v.id}, this)"/>
+                </label>
+                ${v.thumbnail_key ? `<button class="upload-thumb-label" style="color:#ff6b6b;border-color:rgba(229,9,20,0.3)" onclick="deleteThumb(${v.id})">✕ Remove</button>` : ''}
+              </div>
+            </td>
+            <td><span class="filename-chip">${v.filename}</span></td>
+            <td><input class="input-name" id="name-${v.id}" type="text" value="${v.display_name}"/></td>
+            <td style="color:var(--gray)">${v.size}</td>
+            <td style="color:var(--gray)">${v.added_date}</td>
+            <td>
+              <button class="btn-action" id="save-${v.id}" onclick="saveName(${v.id})">Save</button>
+              <button class="btn-action" style="background:transparent;border:1px solid rgba(229,9,20,0.4);color:#ff6b6b" onclick="deleteVideo(${v.id}, '${v.display_name}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      });
+    }
+
+    async function saveName(id) {
+      const displayName = document.getElementById(`name-${id}`).value.trim();
+      if (!displayName) return showAlert('Display name cannot be empty', 'error');
+      const btn = document.getElementById(`save-${id}`);
+      btn.textContent = 'Saving...'; btn.disabled = true;
+      const res = await fetch('/api/videos/rename', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, displayName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        btn.textContent = '✓ Saved'; btn.classList.add('saved');
+        setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('saved'); btn.disabled = false; }, 2000);
+        showAlert(`"${displayName}" saved successfully`, 'success');
+        loadVideos(true);
+      } else {
+        btn.textContent = 'Save'; btn.disabled = false;
+        showAlert(data.error, 'error');
+      }
+    }
+
+    async function uploadThumb(videoId, input) {
+      if (!input.files[0]) return;
+      const fd = new FormData();
+      fd.append('thumbnail', input.files[0]);
+      fd.append('videoId', videoId);
+      const res = await fetch('/api/thumbnails/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok) {
+        showAlert('Thumbnail updated', 'success');
+        loadVideos(true);
+      } else {
+        showAlert(data.error, 'error');
+      }
+    }
+
+    async function deleteVideo(id, name) {
+      if (!confirm(`Delete "${name}"?\n\nThis will permanently remove the video file and thumbnail from disk.`)) return;
+      const res = await fetch(`/api/videos/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        showAlert(`"${name}" deleted`, 'success');
+        loadVideos(true);
+      } else {
+        showAlert(data.error, 'error');
+      }
+    }
+
+    async function deleteThumb(videoId) {
+      if (!confirm('Remove thumbnail?')) return;
+      const res = await fetch(`/api/thumbnails/${videoId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        showAlert('Thumbnail removed', 'success');
+        loadVideos(true);
+      } else {
+        showAlert(data.error, 'error');
+      }
+    }
+
+    function handleFileSelect(file) {
+      if (!file) return;
+      document.getElementById('drop-zone').style.display = 'none';
+      document.getElementById('upload-progress').style.display = 'block';
+      document.getElementById('upload-filename').textContent = file.name;
+
+      const fd = new FormData();
+      fd.append('video', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', e => {
+        if (e.lengthComputable) {
+          const pct = Math.round(e.loaded / e.total * 100);
+          document.getElementById('progress-bar').style.width = pct + '%';
+          document.getElementById('upload-pct').textContent = pct + '%';
+        }
+      });
+      xhr.addEventListener('load', () => {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status === 200) {
+          document.getElementById('upload-progress').style.display = 'none';
+          document.getElementById('upload-success').style.display = 'block';
+          loadVideos(true);
+        } else {
+          showAlert(data.error || 'Upload failed', 'error');
+          resetUpload();
+        }
+      });
+      xhr.addEventListener('error', () => { showAlert('Upload failed', 'error'); resetUpload(); });
+      xhr.open('POST', '/api/videos/upload');
+      xhr.send(fd);
+    }
+
+    // Drag and drop
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'video/mp4') handleFileSelect(file);
+      else showAlert('Only MP4 files are allowed', 'error');
+    });
+
+    function resetUpload() {
+      document.getElementById('drop-zone').style.display = 'block';
+      document.getElementById('upload-progress').style.display = 'none';
+      document.getElementById('upload-success').style.display = 'none';
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('video-file-input').value = '';
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alert');
+      el.textContent = msg;
+      el.className = `alert alert-${type}`;
+      setTimeout(() => { el.className = 'alert'; el.textContent = ''; }, 3500);
+    }
+
+    function logout() {
+      fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/');
+    }
+  </script>
+</body>
+</html>
